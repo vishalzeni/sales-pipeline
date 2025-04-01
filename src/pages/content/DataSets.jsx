@@ -30,7 +30,7 @@ import Offline from "../../components/Offline";
 import axios from "axios";
 
 // Set base URL for Axios
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = "http://82.112.236.241:6001/api";
 
 const DataSets = () => {
   const hardcodedHeaders = useMemo(

@@ -7,6 +7,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, Box, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
 import axios from "axios";
 
+axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+
 const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
   const [recording, setRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -20,7 +22,7 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
   // Fetch recordings from the server
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/dataRows/${rowIndex}`)
+      .get(`/dataRows/${rowIndex}`) // Use base URL
       .then((response) => {
         setRecordings(response.data.voiceData || []);
       })
@@ -38,7 +40,7 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
       setRecordings(updatedRecordings);
 
       axios
-        .put(`http://localhost:5000/api/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings })
+        .put(`/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings }) // Use base URL
         .catch((error) => console.error("Error saving voice data:", error));
     };
     reader.readAsDataURL(newRecordingBlob);
@@ -59,7 +61,7 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
     setRecordings(updatedRecordings);
 
     axios
-      .put(`http://localhost:5000/api/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings })
+      .put(`/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings }) // Use base URL
       .catch((error) => console.error("Error deleting voice data:", error));
 
     handleCloseDeleteDialog();

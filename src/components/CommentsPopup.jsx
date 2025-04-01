@@ -16,6 +16,8 @@ import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
+axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+
 const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
   const [comment, setComment] = useState("");
   const [commentsList, setCommentsList] = useState([]);
@@ -26,7 +28,7 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
   useEffect(() => {
     if (rowIndex !== null && rowIndex !== undefined) {
       axios
-        .get(`http://localhost:5000/api/dataRows/${rowIndex}`)
+        .get(`/dataRows/${rowIndex}`) // Use base URL
         .then((response) => {
           setCommentsList(response.data.comments || []);
         })
@@ -46,7 +48,7 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
     setCommentsList(updatedComments);
 
     axios
-      .put(`http://localhost:5000/api/dataRows/${rowIndex}/comments`, { comments: updatedComments })
+      .put(`/dataRows/${rowIndex}/comments`, { comments: updatedComments }) // Use base URL
       .catch((error) => {
         console.error("Error saving comments:", error.response?.data || error.message);
       });
@@ -64,7 +66,7 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
     setCommentsList(updatedComments);
 
     axios
-      .put(`http://localhost:5000/api/dataRows/${rowIndex}/comments`, { comments: updatedComments })
+      .put(`/dataRows/${rowIndex}/comments`, { comments: updatedComments }) // Use base URL
       .catch((error) => console.error("Error deleting comment:", error));
 
     setIsDialogOpen(false);

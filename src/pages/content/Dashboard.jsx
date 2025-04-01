@@ -11,6 +11,8 @@ import CommentsPopup from '../../components/CommentsPopup';
 import Offline from '../../components/Offline';
 import axios from 'axios';
 
+axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+
 const Dashboard = () => {
   const [stepsData, setStepsData] = useState({
     Step1: [],
@@ -27,7 +29,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/dataRows")
+      .get(`/dataRows`) // Use base URL
       .then((response) => {
         const rows = response.data.filter((row) => row.status === "Move to Lead");
         const steps = {
@@ -70,7 +72,7 @@ const Dashboard = () => {
 
   const updateCardStep = (rowIndex, newStep) => {
     axios
-      .put(`http://localhost:5000/api/dataRows/${rowIndex}/step`, { step: newStep })
+      .put(`/dataRows/${rowIndex}/step`, { step: newStep }) // Use base URL
       .catch(console.error);
   };
 

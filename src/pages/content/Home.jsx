@@ -20,6 +20,8 @@ import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import axios from 'axios'; // Import axios for API calls
 
+axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+
 export default function Home({ setUploadedData }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ export default function Home({ setUploadedData }) {
           }
         }).filter(row => row !== null);
 
-        axios.post("http://localhost:5000/api/dataRows", cleanedDataRows)
+        axios.post(`/dataRows`, cleanedDataRows) // Use base URL
           .then(() => {
             setUploadedData(cleanedDataRows);
             setParsedData(null);
