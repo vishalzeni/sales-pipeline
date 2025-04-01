@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import MicIcon from "@mui/icons-material/Mic";
 import StopIcon from "@mui/icons-material/Stop";
 import SendIcon from "@mui/icons-material/Send";
-import DeleteIcon from "@mui/icons-material/Delete";
 import ReplayIcon from "@mui/icons-material/Replay";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, Box, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
+import axios from "axios";
 
 const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
   const [recording, setRecording] = useState(false);
@@ -16,25 +17,29 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
   const audioChunksRef = useRef([]);
   const mediaStreamRef = useRef(null);
 
+  // Fetch recordings from the server
   useEffect(() => {
-    const savedRecordings = JSON.parse(localStorage.getItem("recordings")) || {};
-    setRecordings(savedRecordings[rowIndex] || []);
+    axios
+      .get(`http://localhost:5000/api/dataRows/${rowIndex}`)
+      .then((response) => {
+        setRecordings(response.data.voiceData || []);
+      })
+      .catch((error) => console.error("Error fetching voice data:", error));
   }, [rowIndex]);
 
-  const saveRecordingToLocalStorage = (newRecordingBlob) => {
+  const saveRecordingToServer = (newRecordingBlob) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = reader.result.split(',')[1]; 
-
+      const base64String = reader.result.split(",")[1];
       const timestamp = new Date().toLocaleString();
       const newRecording = { audio: base64String, timestamp };
 
       const updatedRecordings = [...recordings, newRecording];
       setRecordings(updatedRecordings);
 
-      const allRecordings = JSON.parse(localStorage.getItem("recordings")) || {};
-      allRecordings[rowIndex] = updatedRecordings;
-      localStorage.setItem("recordings", JSON.stringify(allRecordings));
+      axios
+        .put(`http://localhost:5000/api/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings })
+        .catch((error) => console.error("Error saving voice data:", error));
     };
     reader.readAsDataURL(newRecordingBlob);
   };
@@ -53,9 +58,9 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
     const updatedRecordings = recordings.filter((_, i) => i !== recordingToDelete);
     setRecordings(updatedRecordings);
 
-    const allRecordings = JSON.parse(localStorage.getItem("recordings")) || {};
-    allRecordings[rowIndex] = updatedRecordings;
-    localStorage.setItem("recordings", JSON.stringify(allRecordings));
+    axios
+      .put(`http://localhost:5000/api/dataRows/${rowIndex}/voiceData`, { voiceData: updatedRecordings })
+      .catch((error) => console.error("Error deleting voice data:", error));
 
     handleCloseDeleteDialog();
   };
@@ -89,15 +94,15 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
       mediaRecorderRef.current.stop();
     }
     if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
     }
     setRecording(false);
   };
 
   const handleSendRecording = () => {
     if (audioUrl) {
-      const audioBlob = audioChunksRef.current[0]; 
-      saveRecordingToLocalStorage(audioBlob);
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+      saveRecordingToServer(audioBlob);
       setAudioUrl(null);
     }
   };
@@ -146,16 +151,16 @@ const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
       >
         X
       </IconButton>
-      
-          <Typography variant="h6" align="center" sx={{ marginBottom: "12px", color: "#333" }}>
-            Saved Recordings for Row {rowIndex + 1}
-          </Typography>
+
+      <Typography variant="h6" align="center" sx={{ marginBottom: "12px", color: "#333" }}>
+        Saved Recordings for Row {rowIndex + 1}
+      </Typography>
 
       {recordings.length > 0 && (
         <Box sx={{ marginBottom: "20px" }}>
           {recordings.map((recording, index) => (
             <Box key={index} sx={{ marginTop: "12px", textAlign: "center", position: "relative", marginBottom: "20px" }}>
-              <audio controls src={`data:audio/wav;base64,${recording.audio}`} style={{ maxWidth: '250px', borderRadius: '8px' }} />
+              <audio controls src={`data:audio/wav;base64,${recording.audio}`} style={{ maxWidth: "250px", borderRadius: "8px" }} />
               <Typography variant="body2" sx={{ marginTop: "0px", fontStyle: "italic", color: "#777" }}>
                 {recording.timestamp}
               </Typography>

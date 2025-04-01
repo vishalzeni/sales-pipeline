@@ -8,7 +8,6 @@ import Settings from "./content/Settings";
 import Statistics from "./content/Statistics";
 import Home from "./content/Home";
 import DataSets from "./content/DataSets";
-import { MoveToLeadProvider } from "./contextAPI/MoveToLeadContext"; // Import the provider
 import Sales from "./content/Sales";
 
 const ContentArea = ({ openSidebar, toggleSidebar }) => {
@@ -36,14 +35,12 @@ const ContentArea = ({ openSidebar, toggleSidebar }) => {
             maxHeight: "100vh", // Make sure it scrolls vertically within the full screen
           }}
         >
-          <MoveToLeadProvider> {/* Wrap the content with the provider */}
             {activeContent === "home" && <Home setUploadedData={setUploadedData} />}
             {activeContent === "datasets" && <DataSets data={uploadedData} />}
             {activeContent === "dashboard" && <Dashboard />}
+            {activeContent === "sales" && <Sales />}
             {activeContent === "settings" && <Settings />}
             {activeContent === "statistics" && <Statistics />}
-            {activeContent === "sales" && <Sales />}
-          </MoveToLeadProvider>
         </Box>
       </div>
     </DndProvider>

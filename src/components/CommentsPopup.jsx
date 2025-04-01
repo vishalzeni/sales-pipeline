@@ -14,58 +14,63 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
+import axios from "axios";
 
 const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
   const [comment, setComment] = useState("");
   const [commentsList, setCommentsList] = useState([]);
-  const [deleteIndex, setDeleteIndex] = useState(null); // Index of the comment to delete
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Dialog visibility
+  const [deleteIndex, setDeleteIndex] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Load comments for the selected row from local storage
+  // Fetch comments from the server
   useEffect(() => {
-    const storedComments = JSON.parse(localStorage.getItem("comments")) || {};
-    setCommentsList(storedComments[rowIndex] || []);
+    if (rowIndex !== null && rowIndex !== undefined) {
+      axios
+        .get(`http://localhost:5000/api/dataRows/${rowIndex}`)
+        .then((response) => {
+          setCommentsList(response.data.comments || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching comments:", error.response?.data || error.message);
+        });
+    }
   }, [rowIndex]);
 
-  // Handle new comment addition
   const handleAddComment = () => {
     if (comment.trim() === "") return;
 
-    const timestamp = new Date().toLocaleString(); // Get the current date and time
+    const timestamp = new Date().toLocaleString();
     const newComment = { text: comment, timestamp };
 
     const updatedComments = [...commentsList, newComment];
     setCommentsList(updatedComments);
-    setComment(""); // Clear input
 
-    // Save to local storage
-    const allComments = JSON.parse(localStorage.getItem("comments")) || {};
-    allComments[rowIndex] = updatedComments;
-    localStorage.setItem("comments", JSON.stringify(allComments));
+    axios
+      .put(`http://localhost:5000/api/dataRows/${rowIndex}/comments`, { comments: updatedComments })
+      .catch((error) => {
+        console.error("Error saving comments:", error.response?.data || error.message);
+      });
+
+    setComment("");
   };
 
-  // Open confirmation dialog
   const openDeleteConfirmation = (index) => {
     setDeleteIndex(index);
     setIsDialogOpen(true);
   };
 
-  // Confirm and delete the comment
   const handleDeleteComment = () => {
     const updatedComments = commentsList.filter((_, i) => i !== deleteIndex);
     setCommentsList(updatedComments);
 
-    // Update local storage
-    const allComments = JSON.parse(localStorage.getItem("comments")) || {};
-    allComments[rowIndex] = updatedComments;
-    localStorage.setItem("comments", JSON.stringify(allComments));
+    axios
+      .put(`http://localhost:5000/api/dataRows/${rowIndex}/comments`, { comments: updatedComments })
+      .catch((error) => console.error("Error deleting comment:", error));
 
-    // Close dialog
     setIsDialogOpen(false);
     setDeleteIndex(null);
   };
 
-  // Close dialog without deleting
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setDeleteIndex(null);
@@ -80,8 +85,9 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
         maxWidth: "500px",
         width: "90%",
         textAlign: "center",
-        position: "relative", // For positioning the close icon
+        position: "relative",
       }}
+      
     >
       {/* Close Icon */}
       <IconButton
@@ -126,14 +132,8 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
                 borderRadius: "4px",
               }}
             >
-              <Typography
-                sx={{
-                  textAlign: "left",
-                  fontSize: "14px",
-                }}
-              >
-                {index + 1}. {item.text}
-                <br />
+              <Box sx={{ textAlign: "left", fontSize: "14px" }}>
+                <Typography>{index + 1}. {item.text}</Typography>
                 <Typography
                   sx={{
                     fontSize: "12px",
@@ -142,7 +142,7 @@ const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
                 >
                   {item.timestamp}
                 </Typography>
-              </Typography>
+              </Box>
               <IconButton
                 color="error"
                 onClick={() => openDeleteConfirmation(index)}

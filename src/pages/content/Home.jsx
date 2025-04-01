@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
+import axios from 'axios'; // Import axios for API calls
 
 export default function Home({ setUploadedData }) {
   const [file, setFile] = useState(null);
@@ -67,38 +68,37 @@ export default function Home({ setUploadedData }) {
   const handleConfirmUpload = () => {
     if (parsedData) {
       setLoading(true);
-  
+
       setTimeout(() => {
-        const dataRows = parsedData.slice(1); // Skip headers
-  
-        // Ensure each row is an array before using map
+        const dataRows = parsedData.slice(1);
+
         const cleanedDataRows = dataRows.map((row, rowIndex) => {
           if (Array.isArray(row)) {
             return {
-              data: row.slice(1), // Clean data (remove first column)
-              rowIndex, // Use rowIndex as the unique identifier
+              rowIndex,
+              data: row,
+              date: "",
+              status: "Not Interested",
             };
           } else {
             console.error("Row is not an array:", row);
-            return null; // Return null if the row is not an array
+            return null;
           }
-        }).filter(row => row !== null); // Remove any null rows
-  
-        // Fetch existing data from localStorage
-        const existingData = JSON.parse(localStorage.getItem('dataRows')) || [];
-  
-        // Add new rows to existing data
-        const updatedData = [...existingData, ...cleanedDataRows];
-  
-        // Store updated data in localStorage
-        localStorage.setItem('dataRows', JSON.stringify(updatedData));
-  
-        setUploadedData(updatedData); // Update the parent state
-        setParsedData(null);
-        setFile(null);
-        setLoading(false);
-        setOpenDialog(false);
-        alert('Data uploaded successfully!');
+        }).filter(row => row !== null);
+
+        axios.post("http://localhost:5000/api/dataRows", cleanedDataRows)
+          .then(() => {
+            setUploadedData(cleanedDataRows);
+            setParsedData(null);
+            setFile(null);
+            setLoading(false);
+            setOpenDialog(false);
+            alert("Data uploaded successfully!");
+          })
+          .catch((error) => {
+            console.error("Error uploading data:", error.response?.data || error.message);
+            setLoading(false);
+          });
       }, 2000);
     }
   };
