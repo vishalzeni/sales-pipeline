@@ -11,7 +11,7 @@ import CommentsPopup from '../../components/CommentsPopup';
 import Offline from '../../components/Offline';
 import axios from 'axios';
 
-axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+axios.defaults.baseURL = "https://sales-api-ajag.onrender.com/api"; // Set base URL for Axios
 
 const Dashboard = () => {
   const [stepsData, setStepsData] = useState({

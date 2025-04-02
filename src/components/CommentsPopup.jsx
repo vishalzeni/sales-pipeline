@@ -16,7 +16,7 @@ import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+axios.defaults.baseURL = "https://sales-api-ajag.onrender.com/api"; // Set base URL for Axios
 
 const CommentsPopup = ({ rowIndex, closeCommentsPopup }) => {
   const [comment, setComment] = useState("");

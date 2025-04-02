@@ -20,7 +20,7 @@ import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import axios from 'axios'; // Import axios for API calls
 
-axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+axios.defaults.baseURL = "https://sales-api-ajag.onrender.com/api"; // Set base URL for Axios
 
 export default function Home({ setUploadedData }) {
   const [file, setFile] = useState(null);

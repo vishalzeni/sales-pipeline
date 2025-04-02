@@ -7,7 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton, Box, Typography, Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://82.112.236.241:6001/api"; // Set base URL for Axios
+axios.defaults.baseURL = "https://sales-api-ajag.onrender.com/api"; // Set base URL for Axios
 
 const VoicePopup = ({ rowIndex, closeVoicePopup }) => {
   const [recording, setRecording] = useState(false);
